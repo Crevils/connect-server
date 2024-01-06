@@ -6,13 +6,12 @@ const asyncHandler = require('express-async-handler')
 const getUnreadCount = asyncHandler(async (type, from, to) => {
   const filter = type === 'room' ? [to] : [from, to]
   const messageReaders = await Message
-    .find({ sender: { $ne: from } }) // sender 不是自己的訊息
+    .find({ sender: { $ne: from } }) // sender
     .all('users', filter)
     .select(['readers'])
     .sort({ createdAt: -1 })
     .lean()
   
-  // readers 裡面沒有自己的 id
   return messageReaders.filter(({ readers }) => readers.indexOf(from) === -1 ).length || 0
 })
 
@@ -158,7 +157,6 @@ const postRoom = asyncHandler(async (req, res, next) => {
 // UPDATE
 const updateMessageReadStatus = asyncHandler(async (req, res) => {
   try {
-    // chatId 的訊息被 userId 已讀
     const { userId } = req.params
     const { type, chatId } = req.query
 
@@ -168,24 +166,20 @@ const updateMessageReadStatus = asyncHandler(async (req, res) => {
 
     const filter = type === 'room' ? [chatId] : [userId, chatId]
 
-    // 撈出所有 chat 中 sender 不是自己的 message
     const messages = await Message
       .find({ sender: { $ne: userId }})
       .all('users', filter)
       .sort({ createdAt: 1 })
 
-    // 取得 message 和 reader 的對應值
     const messageReaderMap = messages.reduce((prev, curr) => {
       return {...prev, [curr._id.toHexString()]: curr.readers }
     }, {})
 
-    // 檢查 userId 是否已存在 readers 裡 -> 不存在則新增
     Object.entries(messageReaderMap).forEach(([key, value]) => {
       const userHasRead = value.indexOf(userId) > -1
-      if (!userHasRead) messageReaderMap[key].push(userId) // 還沒已讀就加入
+      if (!userHasRead) messageReaderMap[key].push(userId) 
     })
     
-    // 更新已讀
     await Promise.all(
       Object.keys(messageReaderMap).map(async (msgId) => {
         return await Message
