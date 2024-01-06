@@ -10,11 +10,11 @@ const app = express()
 require('dotenv').config()
 
 const corsOptions = {
-  origin: ['http://connect-client-eight.vercel.app', 'http://connect-client-git-master-crevils.vercel.app', 'http://connect-client-qktgr0x0p-crevils.vercel.app'],
+  origin: ['http://connect-client-eight.vercel.app', 'http://connect-client-git-master-crevils.vercel.app', 'http://connect-client-qktgr0x0p-crevils.vercel.app', 'https://connect-client-eight.vercel.app/login'],
   credentials: true
 };
 
-app.use(cors())
+app.use(cors(corsOptions))
 app.use(express.json())
 app.use(express.urlencoded({ extended: false }))
 app.use(cookieParser(process.env.COOKIE_SIGNATURE))
