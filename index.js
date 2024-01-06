@@ -10,7 +10,7 @@ const app = express()
 require('dotenv').config()
 
 const corsOptions = {
-  origin: process.env.CLIENT_URL,
+  origin: ['http://connect-client-eight.vercel.app', 'http://connect-client-git-master-crevils.vercel.app', 'http://connect-client-qktgr0x0p-crevils.vercel.app'],
   credentials: true
 };
 
